@@ -1,8 +1,6 @@
 #[cfg(windows)]
 extern crate winapi;
 
-use std::str;
-
 use winapi::shared::minwindef::{BOOL, LPARAM, TRUE};
 use winapi::um::winnt::LPSTR;
 use winapi::shared::windef::HWND;
@@ -37,16 +35,27 @@ fn get_window_title(handle: Handle) -> String {
 		let length = winapi::um::winuser::GetWindowTextA(handle, &mut buffer as *mut _ as LPSTR, MAX_COUNT as i32);
 		if length > 0 {
 			let exact_text = std::slice::from_raw_parts(buffer.as_ptr(), length as usize);
-			result = String::from_utf8_lossy(exact_text).to_string();
+			result = String::from_utf8_lossy(exact_text).trim().to_string();
 		}
 	}
 	result
 }
 
+fn is_window_visible(handle: Handle) -> bool {
+	unsafe {
+		winapi::um::winuser::IsWindowVisible(handle) == TRUE
+	}
+}
+
+fn get_visible_windows() -> Vec<Handle> {
+	get_all_windows()
+		.into_iter()
+		.filter(|&win| is_window_visible(win) && get_window_title(win).len() > 0)
+		.collect::<Vec<_>>()
+}
+
 fn main() {
-	let windows = get_all_windows();
-	for win in windows {
-		// println!("{:?}", win);
+	for win in get_visible_windows() {
 		println!("{}", get_window_title(win));
 	}
 }
