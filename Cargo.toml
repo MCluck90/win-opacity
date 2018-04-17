@@ -1,11 +1,12 @@
 [package]
 name = "win-opacity"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["mcluck <mcluck90@gmail.com>"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
 
 [dependencies]
+crossterm = "^0.2"
 winapi = "^0.3"
 
 [target.'cfg(window)'.dependencies]
