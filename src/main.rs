@@ -73,10 +73,10 @@ fn main() {
 	}
 
 	print!("Enter an opacity value (0-255): ");
-	std::io::stdout().flush();
+	let _ = std::io::stdout().flush();
 	let mut line = String::new();
 	let stdin = std::io::stdin();
-	stdin.read_line(&mut line);
+	let _ = stdin.read_line(&mut line);
 	let opacity: u8 = line.trim().parse().unwrap();
 	win_opacity::set_opacity(windows[index], opacity);
 }

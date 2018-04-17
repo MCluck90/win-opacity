@@ -1,9 +1,11 @@
 [package]
 name = "win-opacity"
 version = "0.1.1"
+description = "A library and command-line utility for changing the opacity of windows on the Windows OS"
 authors = ["mcluck <mcluck90@gmail.com>"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
+repository = "https://github.com/MCluck90/win-opacity"
 
 [dependencies]
 crossterm = "^0.2"
