@@ -1,8 +1,9 @@
 #[cfg(windows)]
 extern crate winapi;
 
-use winapi::shared::minwindef::{BOOL, LPARAM, TRUE};
-use winapi::um::winnt::LPSTR;
+use winapi::shared::minwindef::{BOOL, DWORD, LPARAM, TRUE};
+use winapi::um::winnt::{LONG, LPSTR};
+use winapi::um::winuser;
 use winapi::shared::windef::HWND;
 
 type Handle = HWND;
@@ -19,7 +20,7 @@ extern "system" fn enum_windows_callback(handle: Handle, lparam: LPARAM) -> BOOL
 fn get_all_windows() -> Vec<Handle> {
 	let mut windows: Vec<Handle> = Vec::new();
 	unsafe {
-		winapi::um::winuser::EnumWindows(
+		winuser::EnumWindows(
 			Some(enum_windows_callback),
 			&mut windows as *mut _ as LPARAM,
 		)
@@ -32,7 +33,7 @@ fn get_window_title(handle: Handle) -> String {
 	let mut buffer = [0u8; MAX_COUNT];
 	let mut result = String::new();
 	unsafe {
-		let length = winapi::um::winuser::GetWindowTextA(handle, &mut buffer as *mut _ as LPSTR, MAX_COUNT as i32);
+		let length = winuser::GetWindowTextA(handle, &mut buffer as *mut _ as LPSTR, MAX_COUNT as i32);
 		if length > 0 {
 			let exact_text = std::slice::from_raw_parts(buffer.as_ptr(), length as usize);
 			result = String::from_utf8_lossy(exact_text).trim().to_string();
@@ -43,7 +44,7 @@ fn get_window_title(handle: Handle) -> String {
 
 fn is_window_visible(handle: Handle) -> bool {
 	unsafe {
-		winapi::um::winuser::IsWindowVisible(handle) == TRUE
+		winuser::IsWindowVisible(handle) == TRUE
 	}
 }
 
@@ -54,8 +55,22 @@ fn get_visible_windows() -> Vec<Handle> {
 		.collect::<Vec<_>>()
 }
 
+fn set_opacity(handle: Handle, opacity: u8) {
+	const GWL_EXSTYLE: i32 = -20;
+	const WS_EX_LAYERED: LONG = 0x80000;
+	const LWA_ALPHA: DWORD = 0x2;
+	unsafe {
+		let window_long = winuser::GetWindowLongA(handle, GWL_EXSTYLE);
+		winuser::SetWindowLongA(handle, GWL_EXSTYLE, window_long | WS_EX_LAYERED);
+		winuser::SetLayeredWindowAttributes(handle, 0, opacity, LWA_ALPHA);
+	}
+}
+
 fn main() {
 	for win in get_visible_windows() {
-		println!("{}", get_window_title(win));
+		if get_window_title(win).contains("Firefox") {
+			println!("{}", get_window_title(win));
+			set_opacity(win, 240);
+		}
 	}
 }
