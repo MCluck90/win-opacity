@@ -1,3 +1,11 @@
+#![crate_type = "lib"]
+#![deny(missing_docs)]
+
+//! # win-opacity
+//! 
+//! win-opacity is a library for changing the opacity level of windows on the Windows operating system.
+
+// Make sure that this is compiled on Windows
 #[cfg(windows)]
 extern crate winapi;
 
@@ -15,6 +23,13 @@ extern "system" fn enum_windows_callback(handle: Handle, lparam: LPARAM) -> BOOL
 	TRUE
 }
 
+/// Returns all of the available windows.
+/// 
+/// ```rust
+/// extern crate win_opacity;
+/// 
+/// win_opacity::get_all_windows()
+/// ```
 pub fn get_all_windows() -> Vec<Handle> {
 	let mut windows: Vec<Handle> = Vec::new();
 	unsafe {
@@ -26,6 +41,14 @@ pub fn get_all_windows() -> Vec<Handle> {
 	windows
 }
 
+/// Returns the title of a window.
+/// 
+/// ```rust
+/// extern crate win_opacity;
+/// 
+/// let window = win_opacity::get_all_windows()[0];
+/// win_opacity::get_window_title(window)
+/// ```
 pub fn get_window_title(handle: Handle) -> String {
 	const MAX_COUNT: usize = 256;
 	let mut buffer = [0u8; MAX_COUNT];
@@ -40,12 +63,27 @@ pub fn get_window_title(handle: Handle) -> String {
 	result
 }
 
+/// Indicates if a window is visible.
+/// 
+/// ```rust
+/// extern crate win_opacity;
+/// 
+/// let window = win_opacity::get_all_windows()[0];
+/// win_opacity::is_window_visible(window)
+/// ```
 pub fn is_window_visible(handle: Handle) -> bool {
 	unsafe {
 		winuser::IsWindowVisible(handle) == TRUE
 	}
 }
 
+/// Returns all visible windows.
+/// 
+/// ```rust
+/// extern crate win_opacity;
+/// 
+/// win_opacity::get_visible_windows()
+/// ```
 pub fn get_visible_windows() -> Vec<Handle> {
 	get_all_windows()
 		.into_iter()
@@ -53,6 +91,14 @@ pub fn get_visible_windows() -> Vec<Handle> {
 		.collect::<Vec<_>>()
 }
 
+/// Sets the opacity level of a window.
+/// 
+/// ```rust
+/// extern crate win_opacity;
+/// 
+/// let window = win_opacity::get_visible_windows()[0];
+/// win_opacity::set_opacity(window, 128);
+/// ```
 pub fn set_opacity(handle: Handle, opacity: u8) {
 	const GWL_EXSTYLE: i32 = -20;
 	const WS_EX_LAYERED: LONG = 0x80000;
