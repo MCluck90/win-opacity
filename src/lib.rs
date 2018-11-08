@@ -28,7 +28,7 @@ extern "system" fn enum_windows_callback(handle: Handle, lparam: LPARAM) -> BOOL
 /// ```rust
 /// extern crate win_opacity;
 /// 
-/// win_opacity::get_all_windows()
+/// win_opacity::get_all_windows();
 /// ```
 pub fn get_all_windows() -> Vec<Handle> {
 	let mut windows: Vec<Handle> = Vec::new();
@@ -47,14 +47,14 @@ pub fn get_all_windows() -> Vec<Handle> {
 /// extern crate win_opacity;
 /// 
 /// let window = win_opacity::get_all_windows()[0];
-/// win_opacity::get_window_title(window)
+/// win_opacity::get_window_title(&window);
 /// ```
-pub fn get_window_title(handle: Handle) -> String {
+pub fn get_window_title(handle: &Handle) -> String {
 	const MAX_COUNT: usize = 256;
 	let mut buffer = [0u8; MAX_COUNT];
 	let mut result = String::new();
 	unsafe {
-		let length = winuser::GetWindowTextA(handle, &mut buffer as *mut _ as LPSTR, MAX_COUNT as i32);
+		let length = winuser::GetWindowTextA(*handle, &mut buffer as *mut _ as LPSTR, MAX_COUNT as i32);
 		if length > 0 {
 			let exact_text = std::slice::from_raw_parts(buffer.as_ptr(), length as usize);
 			result = String::from_utf8_lossy(exact_text).trim().to_string();
@@ -69,11 +69,11 @@ pub fn get_window_title(handle: Handle) -> String {
 /// extern crate win_opacity;
 /// 
 /// let window = win_opacity::get_all_windows()[0];
-/// win_opacity::is_window_visible(window)
+/// win_opacity::is_window_visible(&window);
 /// ```
-pub fn is_window_visible(handle: Handle) -> bool {
+pub fn is_window_visible(handle: &Handle) -> bool {
 	unsafe {
-		winuser::IsWindowVisible(handle) == TRUE
+		winuser::IsWindowVisible(*handle) == TRUE
 	}
 }
 
@@ -82,12 +82,15 @@ pub fn is_window_visible(handle: Handle) -> bool {
 /// ```rust
 /// extern crate win_opacity;
 /// 
-/// win_opacity::get_visible_windows()
+/// let windows = win_opacity::get_visible_windows();
+/// if let Some(window) = windows.get(0) {
+///   assert!(win_opacity::is_window_visible(window));
+/// }
 /// ```
 pub fn get_visible_windows() -> Vec<Handle> {
 	get_all_windows()
 		.into_iter()
-		.filter(|&win| is_window_visible(win) && get_window_title(win).len() > 0)
+		.filter(|&win| is_window_visible(&win) && get_window_title(&win).len() > 0)
 		.collect::<Vec<_>>()
 }
 
@@ -97,7 +100,7 @@ pub fn get_visible_windows() -> Vec<Handle> {
 /// extern crate win_opacity;
 /// 
 /// let window = win_opacity::get_visible_windows()[0];
-/// win_opacity::set_opacity(window, 128);
+/// win_opacity::set_opacity(window, 230);
 /// ```
 pub fn set_opacity(handle: Handle, opacity: u8) {
 	const GWL_EXSTYLE: i32 = -20;

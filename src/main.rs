@@ -84,7 +84,7 @@ fn main() {
 fn render_list(index: usize, windows: &Vec<Handle>) {
 	// let windows = win_opacity::get_visible_windows();
 	for (i, win) in windows.iter().enumerate() {
-		let title = win_opacity::get_window_title(*win);
+		let title = win_opacity::get_window_title(win);
 		println!("{} {}", if i == index { ">" } else { " "}, title);
 	}
 }
