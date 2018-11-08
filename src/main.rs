@@ -33,7 +33,7 @@ fn main() {
 	let mut index: usize = 0;
 	let windows = win_opacity::get_visible_windows();
 	let max = windows.len();
-	let mut cursor = crossterm::crossterm_cursor::get();
+	let mut cursor = crossterm::cursor::cursor();
 	println!("Which window would you like to change? (Use arrow keys)");
 	render_list(index, &windows);
 
